@@ -78,12 +78,20 @@ echo $result->output;
 
 ```php
 use Juzhax\AiClient\Data\JsonData;
-use Juzhax\AiClient\Requests\PromptRenderRequest;
+use Juzhax\AiClient\Requests\PromptRunRequest;
 
-$variables = new JsonData((object) ['name' => 'Ada']);
-$prompt = $client->prompts()->render('welcome', new PromptRenderRequest($variables));
-echo $prompt->content;
+$variables = new JsonData((object) ['topic' => 'Laravel queues']);
+$result = $client->prompts()->run(
+    'explain-topic',
+    new PromptRunRequest('openai', 'gpt-5-mini', $variables),
+);
+
+echo $result->output;
+echo $result->usage->value->total_tokens;
 ```
+
+The API key must be project-scoped with the `prompts:run` ability. The prompt must have an active
+version and reference a registered agent. Provider and model values must match active catalogue entries.
 
 ## Framework examples
 

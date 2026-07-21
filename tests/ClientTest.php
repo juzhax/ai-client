@@ -15,6 +15,7 @@ use Juzhax\AiClient\Exception\RateLimitException;
 use Juzhax\AiClient\Exception\ValidationException;
 use Juzhax\AiClient\Requests\AgentRunRequest;
 use Juzhax\AiClient\Requests\PromptRenderRequest;
+use Juzhax\AiClient\Requests\PromptRunRequest;
 use Juzhax\AiClient\Requests\WorkflowRunRequest;
 use Juzhax\AiClient\Tests\Support\MockHttpClient;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -67,6 +68,47 @@ final class ClientTest extends TestCase
 
         self::assertSame('ok', $this->client($http)->health()->ping()->status);
         self::assertCount(3, $http->requests);
+    }
+
+    public function testPromptRunUsesPlatformRouteAndMapsExecutionResponse(): void
+    {
+        $http = new MockHttpClient(new Response(200, [], json_encode([
+            'data' => [
+                'request_uuid' => '019prompt-run',
+                'prompt' => ['slug' => 'explain-topic', 'version' => 2],
+                'output' => 'Laravel queues process work asynchronously.',
+                'structured' => ['summary' => 'Queues run work later.'],
+                'provider' => 'openai',
+                'model' => 'gpt-5-mini',
+                'usage' => ['input_tokens' => 20, 'output_tokens' => 8, 'total_tokens' => 28],
+                'cost' => ['total' => '0.00010000', 'currency' => 'USD'],
+                'finish_reason' => 'stop',
+                'duration_ms' => 125,
+                'warnings' => [],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $variables = new stdClass();
+        $variables->topic = 'Laravel queues';
+
+        $response = $this->client($http)->prompts()->run(
+            'explain topic',
+            new PromptRunRequest('openai', 'gpt-5-mini', new JsonData($variables)),
+        );
+
+        self::assertSame('019prompt-run', $response->requestUuid);
+        self::assertSame('Laravel queues process work asynchronously.', $response->output);
+        self::assertSame('Queues run work later.', $response->structured?->value->summary);
+        self::assertSame('openai', $response->provider);
+        self::assertSame('gpt-5-mini', $response->model);
+        self::assertSame(28, $response->usage->value->total_tokens);
+        self::assertSame('0.00010000', $response->cost->value->total);
+        self::assertSame('stop', $response->finishReason);
+        self::assertSame(125, $response->durationMs);
+        self::assertSame('/api/v1/prompts/explain%20topic/runs', $http->requests[0]->getUri()->getPath());
+        self::assertJsonStringEqualsJsonString(
+            '{"provider":"openai","model":"gpt-5-mini","variables":{"topic":"Laravel queues"}}',
+            (string) $http->requests[0]->getBody(),
+        );
     }
 
     public function testAllRemainingResourcesUseTheirDocumentedRoutes(): void
