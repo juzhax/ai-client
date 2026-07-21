@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - 2026-07-21
+
+- Point `HealthResource::ping()` to the AI Platform's Laravel health endpoint at `/up`.
+- Update the default SDK user agent to `juzhax-ai-client/1.1.1`.
+
 ## 1.1.0 - 2026-07-21
 
 - Add direct saved-prompt execution through `PromptsResource::run()`.

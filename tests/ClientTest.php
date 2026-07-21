@@ -32,7 +32,7 @@ final class ClientTest extends TestCase
         self::assertSame('ok', $response->status);
         self::assertCount(1, $http->requests);
         self::assertSame('GET', $http->requests[0]->getMethod());
-        self::assertSame('https://ai.justin.my/health', (string) $http->requests[0]->getUri());
+        self::assertSame('https://ai.justin.my/up', (string) $http->requests[0]->getUri());
         self::assertSame('Bearer ai_live_test', $http->requests[0]->getHeaderLine('Authorization'));
         self::assertSame('application/json', $http->requests[0]->getHeaderLine('Accept'));
         self::assertSame('test-suite', $http->requests[0]->getHeaderLine('User-Agent'));

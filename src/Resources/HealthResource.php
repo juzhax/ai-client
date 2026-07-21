@@ -16,6 +16,6 @@ final readonly class HealthResource
 
     public function ping(): HealthResponse
     {
-        return $this->mapper->health($this->transport->send('GET', '/health'));
+        return $this->mapper->health($this->transport->send('GET', '/up'));
     }
 }

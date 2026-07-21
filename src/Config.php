@@ -12,7 +12,7 @@ final readonly class Config
         public string $baseUrl,
         public ApiKey $apiKey,
         public float $timeout = 30.0,
-        public string $userAgent = 'juzhax-ai-client/1.1',
+        public string $userAgent = 'juzhax-ai-client/1.1.1',
         public int $retry = 2,
     ) {
         if (!filter_var($baseUrl, FILTER_VALIDATE_URL)) {
