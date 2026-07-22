@@ -10,18 +10,18 @@ use Juzhax\AiClient\Data\JsonData;
 final readonly class PromptRunRequest implements RequestData
 {
     public function __construct(
-        public string $provider,
-        public string $model,
+        public ?string $provider = null,
+        public ?string $model = null,
         public JsonData $variables = new JsonData(),
     ) {
     }
 
     public function toArray(): array
     {
-        return [
+        return array_filter([
             'provider' => $this->provider,
             'model' => $this->model,
             'variables' => $this->variables->value,
-        ];
+        ], static fn (mixed $value): bool => $value !== null);
     }
 }

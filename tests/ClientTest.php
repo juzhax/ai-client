@@ -111,6 +111,37 @@ final class ClientTest extends TestCase
         );
     }
 
+    public function testPromptRunCanUseThePromptsConfiguredProviderAndModel(): void
+    {
+        $http = new MockHttpClient(new Response(200, [], json_encode([
+            'data' => [
+                'request_uuid' => '019prompt-defaults',
+                'prompt' => ['slug' => 'explain-topic', 'version' => 2],
+                'output' => 'Laravel queues process work asynchronously.',
+                'structured' => null,
+                'provider' => 'openai',
+                'model' => 'gpt-5-mini',
+                'usage' => [],
+                'cost' => [],
+                'finish_reason' => 'stop',
+                'duration_ms' => 125,
+                'warnings' => [],
+            ],
+        ], JSON_THROW_ON_ERROR)));
+        $variables = new stdClass();
+        $variables->topic = 'Laravel queues';
+
+        $this->client($http)->prompts()->run(
+            'explain-topic',
+            new PromptRunRequest(variables: new JsonData($variables)),
+        );
+
+        self::assertJsonStringEqualsJsonString(
+            '{"variables":{"topic":"Laravel queues"}}',
+            (string) $http->requests[0]->getBody(),
+        );
+    }
+
     public function testAllRemainingResourcesUseTheirDocumentedRoutes(): void
     {
         $http = new MockHttpClient(

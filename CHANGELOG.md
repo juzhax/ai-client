@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2 - 2026-07-22
+
+- Allow prompt runs to use the provider and model configured by the platform when no override is supplied.
+- Update the default SDK user agent to `juzhax-ai-client/1.1.2`.
+
 ## 1.1.1 - 2026-07-21
 
 - Point `HealthResource::ping()` to the AI Platform's Laravel health endpoint at `/up`.
